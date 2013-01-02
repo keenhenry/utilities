@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# this script is used to clean up files based on some options
+
+# the most basic funtionality is to clean up files in some root directory (specified through
+# a command line option) on disk that are older than some specified time (specified by a command line
+# option)
+
+if [ $# -ne 2 ]
+then
+    echo "Usage: cleanup <directory> <file age>"
+else
+    echo "You got the number of arguments right"
+fi
+
+# find /some/path/ -type f -mtime +3 | xargs rm
