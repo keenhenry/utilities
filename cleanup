@@ -1,16 +1,43 @@
 #!/bin/bash
 
-# this script is used to clean up files based on some options
+# cleanup is used to clean up files inside some specified directory(s)
 
-# the most basic funtionality is to clean up files in some root directory (specified through
-# a command line option) on disk that are older than some specified time (specified by a command line
-# option)
-
-if [ $# -ne 2 ]
+if [ $# -eq 2 ]
 then
-    echo "Usage: cleanup <directory> <file age>"
-else
-    echo "You got the number of arguments right"
-fi
+    CLEANUP_PATH=$1
+    TIMESTAMP=$2
 
-# find /some/path/ -type f -mtime +3 | xargs rm
+    # first need to test if path exists or not
+    if [ ! -d ${CLEANUP_PATH} ]; then
+        echo "cleanup: directory '${CLEANUP_PATH}' does not exist" 
+        exit 1  # failed clean up because directory could not be found
+    fi
+
+    # test if having write permission or not
+    if [ ! -w ${CLEANUP_PATH} ]; then
+        echo "cleanup: no permission to write '${CLEANUP_PATH}' directory"
+        exit 1
+    fi
+
+    # test if TIMESTAMP is an integer
+    # -eq is a numerical comparison
+    # test emits a lot of error messages if test failed; that's why
+    # the messages are being redirected
+    if [ ${TIMESTAMP} -eq ${TIMESTAMP} >& /dev/null ]; then
+
+        # remove files in CLEANUP_PATH
+        find ${CLEANUP_PATH} -maxdepth 1 -type f -mtime +${TIMESTAMP} | xargs rm
+
+    else
+        echo "cleanup: '${TIMESTAMP}' is not an integer"
+        exit 1
+    fi
+else
+    echo "Usage: cleanup [<path>] [<timestamp>]"
+    echo ""
+    echo "[<path>]: the absolute path to the root directory to be cleaned up"
+    echo "[<timestamp>]: an integer; files and directories older than <timestamp> will be deleted; unit is in number of days"
+    echo ""
+    echo "Example: cleanup /home/john/Music 3"
+    echo ""
+fi
