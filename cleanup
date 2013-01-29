@@ -2,40 +2,47 @@
 
 # cleanup is used to clean up files inside some specified directory(s)
 
-if [ $# -eq 2 ]
+if [ $# -ge 2 ]
 then
-    CLEANUP_PATH=$1
-    TIMESTAMP=$2
 
-    # first need to test if path exists or not
-    if [ ! -d ${CLEANUP_PATH} ]; then
-        echo "cleanup: directory '${CLEANUP_PATH}' does not exist" 
-        exit 1  # failed clean up because directory could not be found
-    fi
+    # slice out the argument array from the first argument
+    # until the second to the last argument
+    CLEANUP_PATHS=${@:1:$# - 1}
 
-    # test if having write permission or not
-    if [ ! -w ${CLEANUP_PATH} ]; then
-        echo "cleanup: no permission to write '${CLEANUP_PATH}' directory"
-        exit 1
-    fi
+    # timestamp is specified in the last argument
+    TIMESTAMP=${!#}               # or $BASH_ARGV
+
+    # examine validity for each path
+    for path in $CLEANUP_PATHS
+    do
+        # test if path exists
+        if [ ! -d ${path} ]; then
+            echo "cleanup: directory '${path}' does not exist" 
+            exit 1
+        fi
+
+        # test if having write permission
+        if [ ! -w ${path} ]; then
+            echo "cleanup: no permission to write '${path}' directory"
+            exit 1
+        fi
+    done
 
     # test if TIMESTAMP is an integer
     # -eq is a numerical comparison
     # test emits a lot of error messages if test failed; that's why
     # the messages are being redirected
     if [ ${TIMESTAMP} -eq ${TIMESTAMP} >& /dev/null ]; then
-
         # remove files in CLEANUP_PATH
-        find ${CLEANUP_PATH} -maxdepth 1 -type f -mtime +${TIMESTAMP} | xargs rm
-
+        find ${CLEANUP_PATHS} -maxdepth 1 -type f -mtime +${TIMESTAMP} | xargs rm
     else
         echo "cleanup: '${TIMESTAMP}' is not an integer"
         exit 1
     fi
 else
-    echo "Usage: cleanup [<path>] [<timestamp>]"
+    echo "Usage: cleanup [<paths>...] [<timestamp>]"
     echo ""
-    echo "[<path>]: the absolute path to the root directory to be cleaned up"
+    echo "[<paths>...] : the absolute paths to the root directory to be cleaned up"
     echo "[<timestamp>]: an integer; files and directories older than <timestamp> will be deleted; unit is in number of days"
     echo ""
     echo "Example: cleanup /home/john/Music 3"
