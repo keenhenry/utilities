@@ -14,7 +14,7 @@ install:
 	@echo ''
 	@echo "`dir $(INSTALL_DIR)`"
 	@echo ''
-	@echo "If you want, please source those scripts in $(INSTALL_DIR) from your .bashrc file"
+	@echo "If you want, please add $(INSTALL_DIR) to your PATH from your .bashrc file"
 	@echo ''
 
 .PHONY: install
