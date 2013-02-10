@@ -1,3 +1,21 @@
 #!/bin/bash
 
-# this script is used to install other bash scripts
+# this script is to install bash scripts in the directory
+# specified through $1, to the directory specified in $2
+# 
+# if $1 is not specified, then it is assumed to be in 
+# the current directory where this script is executed
+
+case "$#" in
+    1) CWD=`pwd`
+       SOURCES=`find $CWD -maxdepth 1 -type f -perm +111 \( -iname "*" ! -iname "*install" \)`
+       install $SOURCES $1
+       ;;
+    2) SOURCES=`find $1 -maxdepth 1 -type f -perm +111`
+       install $SOURCES $2
+       ;;
+    *) echo 'Usage: ----'
+       echo 'install <src> <dst> - install sources from <src> directory to <dst> directory'
+       echo 'install <dst> - install sources from current directory to <dst> directory'
+       ;;
+esac
