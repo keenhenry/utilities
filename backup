@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# this script is to backup files to some spare disk using rsync
+
+export PATH=/usr/local/bin:/usr/bin:/bin
+
+LIST="rootfs usr data data2"
+
+for d in $LIST; do
+    mount /backup/$d
+    rsync -ax --exclude fstab --delete /$d/ /backup/$d/
+    umount /backup/$d
+done
+
+DAY=`date "+%A"`
+
+rsync -a --delete /usr/local/apache /data2/backups/$DAY
+rsync -a --delete /data/solid /data2/backups/$DAY
+
+# The first part does the backup on the spare disk. The second part
+# backs up the critical parts to daily directories.  I also backup the
+# critical parts using a rsync over ssh to a remote machine.
