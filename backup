@@ -1,22 +1,26 @@
 #!/bin/bash
 
-# this script is to backup files to some spare disk using rsync
+#==================================================
+# This simple script is to backup files using rsync
+#================================================== 
+#
+# @27.02.2013 --- Henry Huang ---
+# 
+# to make sure rsync command really works the way you want, 
+# try it with '--dry-run' option until you're satisfied 
+# with what it is doing
 
-export PATH=/usr/local/bin:/usr/bin:/bin
+DAY=`date "+%F"`
 
-LIST="rootfs usr data data2"
+BACKUP_LIST="Work Documents Desktop Downloads public_html"
+BACKUP_LOG=${DAY}_backup.log
 
-for d in $LIST; do
-    mount /backup/$d
-    rsync -ax --exclude fstab --delete /$d/ /backup/$d/
-    umount /backup/$d
+DEST="/media/1808-456F/backup"
+
+# create log files in the backup directory
+touch ${DEST}/${BACKUP_LOG}
+
+# start backing up files to destination on a spare disk
+for d in $BACKUP_LIST; do
+    rsync --dry-run -av --exclude Dropbox --delete /home/henry/$d/ $DEST/$d/ >> $DEST/${BACKUP_LOG} 2>&1
 done
-
-DAY=`date "+%A"`
-
-rsync -a --delete /usr/local/apache /data2/backups/$DAY
-rsync -a --delete /data/solid /data2/backups/$DAY
-
-# The first part does the backup on the spare disk. The second part
-# backs up the critical parts to daily directories.  I also backup the
-# critical parts using a rsync over ssh to a remote machine.
