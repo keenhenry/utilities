@@ -12,7 +12,7 @@
 
 DAY=`date "+%F"`
 
-BACKUP_LIST=".password-store Work Documents Desktop Downloads public_html"
+BACKUP_LIST=".pdaconfig .bashrc .vimrc .bash_aliases .password-store Work Documents Desktop Downloads public_html"
 BACKUP_LOG=${DAY}_backup.log
 
 DEST="/media/1808-456F/backup"
